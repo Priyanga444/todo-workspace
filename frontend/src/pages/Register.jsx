@@ -192,7 +192,7 @@ const Register = () => {
                           {...register('name', { required: 'Name is required' })}
                           style={{ paddingLeft: '34px' }}
                           className="w-full pl-9 pr-4 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
-                          placeholder="John Doe" 
+                          placeholder="name" 
                         />
                       </div>
                       {errors.name && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.name.message}</p>}

@@ -61,14 +61,14 @@ const Analytics = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Monthly Completions */}
+        {/* Daily Progress */}
         <div className="glass-panel p-6 bg-white dark:bg-[#1c1535] border border-pink-100 dark:border-pink-900/40 h-[320px] flex flex-col">
-          <h3 className="text-sm font-bold text-purple-950 dark:text-white mb-4">Tasks Completed Per Month</h3>
+          <h3 className="text-sm font-bold text-purple-955 dark:text-white mb-4">Daily Completion Progress (Past 7 Days)</h3>
           <div className="flex-1 min-h-0 text-[10px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.monthlyData || []}>
+              <BarChart data={charts?.dailyData || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-                <XAxis dataKey="month" stroke={axisStroke} />
+                <XAxis dataKey="date" stroke={axisStroke} />
                 <YAxis stroke={axisStroke} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Bar dataKey="count" fill="#d946ef" radius={[4, 4, 0, 0]} />

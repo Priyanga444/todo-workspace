@@ -100,15 +100,16 @@ exports.getAnalyticsCharts = async (req, res) => {
       };
     });
 
-    // 4. Tasks completed per month (past 6 months)
-    const monthlyResult = await db.query(
-      `SELECT TO_CHAR(t.updated_at, 'YYYY-MM') as month, COUNT(*) as count
+    // 4. Tasks completed daily (past 7 days)
+    const dailyResult = await db.query(
+      `SELECT TO_CHAR(t.updated_at, 'YYYY-MM-DD') as date, COUNT(*) as count
        FROM tasks t
        JOIN columns col ON t.column_id = col.id
        JOIN project_members pm ON col.project_id = pm.project_id
-       WHERE pm.user_id = $1 AND col.name = 'Completed' AND t.updated_at >= NOW() - INTERVAL '6 months'
-       GROUP BY TO_CHAR(t.updated_at, 'YYYY-MM')
-       ORDER BY month ASC`
+       WHERE pm.user_id = $1 AND col.name = 'Completed' AND t.updated_at >= NOW() - INTERVAL '7 days'
+       GROUP BY TO_CHAR(t.updated_at, 'YYYY-MM-DD')
+       ORDER BY date ASC`,
+      [userId]
     );
 
     // 5. Activity Log (last 15 activities user can see based on projects membership)
@@ -129,7 +130,7 @@ exports.getAnalyticsCharts = async (req, res) => {
       priorityData: priorityResult.rows,
       statusData: statusResult.rows,
       projectProgress,
-      monthlyData: monthlyResult.rows,
+      dailyData: dailyResult.rows,
       recentActivity: activityResult.rows
     });
   } catch (err) {
