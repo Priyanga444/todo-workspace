@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let API_URL = `http://${window.location.hostname}:5000/api`;
+let API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
 
 if (window.location.hostname.includes('-5173')) {
   const backendHost = window.location.host.replace('-5173', '-5000');
