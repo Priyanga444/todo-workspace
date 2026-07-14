@@ -25,6 +25,7 @@ const Login = () => {
   const [newPass, setNewPass] = useState('');
   const [forgotError, setForgotError] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
+  const [testOtp, setTestOtp] = useState('');
 
   useEffect(() => {
     if (videoRef.current) {
@@ -53,8 +54,11 @@ const Login = () => {
     setForgotError('');
     setForgotSuccess('');
     try {
-      await forgotPassword(forgotEmail);
+      const res = await forgotPassword(forgotEmail);
       setForgotStep(2);
+      if (res && res.test_otp_code) {
+        setTestOtp(res.test_otp_code);
+      }
     } catch (err) {
       console.error(err);
       setForgotError(err.message || 'Account not found or system error.');
@@ -337,6 +341,11 @@ const Login = () => {
                 ) : (
                   // Step 2: Submit OTP & new password
                   <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+                    {testOtp && (
+                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 rounded-2xl text-xs font-bold text-center">
+                        💡 Helper Reset OTP: <strong className="text-emerald-900 underline tracking-wider">{testOtp}</strong>
+                      </div>
+                    )}
                     <div>
                       <label className="block text-[10px] font-extrabold text-slate-755 mb-2 uppercase tracking-wider text-center">
                         Enter 6-Digit Reset Code

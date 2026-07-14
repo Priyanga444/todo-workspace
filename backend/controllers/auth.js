@@ -51,7 +51,7 @@ exports.register = async (req, res) => {
       true
     );
 
-    res.status(201).json({ requiresOtp: true, email: user.email });
+    res.status(201).json({ requiresOtp: true, email: user.email, test_otp_code: otp });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -177,7 +177,7 @@ exports.forgotPassword = async (req, res) => {
       true
     );
 
-    res.json({ success: true, email: user.email });
+    res.json({ success: true, email: user.email, test_otp_code: otp });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

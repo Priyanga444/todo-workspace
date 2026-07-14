@@ -28,6 +28,7 @@ const Register = () => {
   const [otpCode, setOtpCode] = useState('');
   const [otpError, setOtpError] = useState('');
   const [showModeSelection, setShowModeSelection] = useState(false);
+  const [testOtp, setTestOtp] = useState('');
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -37,6 +38,9 @@ const Register = () => {
       if (res && res.requiresOtp) {
         setOtpEmail(res.email);
         setShowOtpScreen(true);
+        if (res.test_otp_code) {
+          setTestOtp(res.test_otp_code);
+        }
       } else {
         setShowModeSelection(true);
       }
@@ -261,6 +265,12 @@ const Register = () => {
                     <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-700 rounded-2xl text-xs font-bold mb-5 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                       {otpError}
+                    </div>
+                  )}
+
+                  {testOtp && (
+                    <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 rounded-2xl text-xs font-bold text-center mb-5">
+                      💡 Helper Verification OTP: <strong className="text-emerald-900 underline tracking-wider">{testOtp}</strong>
                     </div>
                   )}
 
