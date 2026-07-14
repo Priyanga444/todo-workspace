@@ -7,6 +7,18 @@ if (window.location.hostname.includes('-5173')) {
   API_URL = `https://${backendHost}/api`;
 }
 
+// Clean and ensure it ends with /api
+if (API_URL) {
+  let cleaned = API_URL.trim();
+  if (cleaned.endsWith('/')) {
+    cleaned = cleaned.slice(0, -1);
+  }
+  if (!cleaned.endsWith('/api')) {
+    cleaned = `${cleaned}/api`;
+  }
+  API_URL = cleaned;
+}
+
 const apiInstance = axios.create({
   baseURL: API_URL,
   headers: {
