@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #d946ef; /* Orchid pink-violet (Fuchsia 500) */
+  --color-primary-dark: #c026d3;
+  --color-secondary: #f472b6; /* Soft pink */
+  --color-accent: #fdf4ff; /* Ultra light pastel violet/pink tint */
+  --color-background: #fdf2f8; /* Soft pink-violet background (Pink 50) */
+  --color-surface: #ffffff; /* pure white card background */
+  --color-text-dark: #701a75; /* Dark fuchsia/violet text */
+  --color-text-gray: #a21caf; /* Muted fuchsia text */
+}
+
+@layer base {
+  :root {
+    --bg-color: var(--color-background);
+    --text-color: var(--color-text-dark);
+    --card-bg: var(--color-surface);
+    --card-border: rgba(217, 70, 239, 0.4); /* Pink-violet card border */
+    --primary: var(--color-primary);
+  }
+
+  .dark {
+    /* Deep pink-violet night theme */
+    --bg-color: #1a0b2e;
+    --text-color: #fdf4ff;
+    --card-bg: #281242;
+    --card-border: rgba(217, 70, 239, 0.55);
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    @apply antialiased min-h-screen overflow-x-hidden;
+  }
+
+  /* Global input styling for pink-violet theme */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    background-color: #ffffff !important;
+    border: 2px solid rgba(217, 70, 239, 0.4) !important;
+    color: #701a75 !important;
+    border-radius: 14px !important;
+    padding: 10px 16px; /* Removed !important to allow custom padding-left overrides */
+    transition: all 0.2s ease-in-out !important;
+  }
+
+  /* Left-padding overrides for inputs containing icons */
+  input.pl-9, select.pl-9 {
+    padding-left: 36px !important;
+  }
+  input.pl-10, select.pl-10 {
+    padding-left: 40px !important;
+  }
+
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder,
+  input[type="password"]::placeholder {
+    color: #f472b6 !important;
+    opacity: 0.8;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none !important;
+    border-color: #d946ef !important;
+    box-shadow: 0 0 0 4px rgba(217, 70, 239, 0.15) !important;
+  }
+
+  .dark input[type="text"],
+  .dark input[type="email"],
+  .dark input[type="password"],
+  .dark input[type="number"],
+  .dark input[type="date"],
+  .dark select,
+  .dark textarea {
+    background-color: #200e35 !important;
+    border-color: rgba(217, 70, 239, 0.55) !important;
+    color: #fdf4ff !important;
+  }
+
+  .dark input[type="text"]::placeholder,
+  .dark input[type="email"]::placeholder,
+  .dark input[type="password"]::placeholder {
+    color: rgba(253, 244, 255, 0.4) !important;
+  }
+}
+
+@utility glass {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid var(--card-border);
+  box-shadow: 0 10px 30px -10px rgba(217, 70, 239, 0.12);
+}
+
+@utility glass-panel {
+  @apply glass rounded-3xl shadow-xl;
+}
+
+@utility text-gradient {
+  background: linear-gradient(to right, #ec4899, #8b5cf6); /* Pink to Violet gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility btn-primary {
+  @apply bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-semibold py-2.5 px-5 rounded-2xl transition-all duration-300 shadow-md hover:shadow-pink-500/20 active:scale-98;
+}
+
+@utility btn-glass {
+  @apply glass hover:bg-pink-50 text-pink-700 dark:text-pink-200 font-semibold py-2 px-4 rounded-xl transition-all duration-300;
+}
+
+/* Premium VisionOS Glassmorphism Card Style - Bright Theme */
+.glass-card {
+  background: rgba(255, 255, 255, 0.0) !important;
+  backdrop-filter: blur(35px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(35px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2), 
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    0 30px 60px -15px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 32px !important;
+}
+
+.dark .glass-card {
+  background: rgba(255, 255, 255, 0.0) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Glassmorphic input fields overrides inside glass-cards */
+.glass-card input[type="text"],
+.glass-card input[type="email"],
+.glass-card input[type="password"] {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: #0f172a !important; /* text-slate-900 */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.glass-card input[type="text"]::placeholder,
+.glass-card input[type="email"]::placeholder,
+.glass-card input[type="password"]::placeholder {
+  color: #64748b !important; /* slate-500 */
+  opacity: 0.75 !important;
+}
+
+.glass-card input[type="text"]:focus,
+.glass-card input[type="email"]:focus,
+.glass-card input[type="password"]:focus {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: #d946ef !important;
+  box-shadow: 
+    0 0 0 4px rgba(217, 70, 239, 0.12), 
+    inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Premium Moving Mesh Gradient Background - Bright Theme */
+@keyframes mesh-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.moving-mesh-bg {
+  background: linear-gradient(-45deg, #fdf2f8, #eef2ff, #f5f3ff, #fdf4ff) !important;
+  background-size: 300% 300% !important;
+  animation: mesh-animation 16s ease infinite !important;
+}
