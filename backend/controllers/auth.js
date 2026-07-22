@@ -21,11 +21,6 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    // Generate 6-digit OTP code for registration verification
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpHash = await bcrypt.hash(otp, salt);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiration
-
     // Ensure columns exist (in case migration didn't run)
     await db.query(`
       ALTER TABLE users 
@@ -35,23 +30,17 @@ exports.register = async (req, res) => {
     `);
 
     const result = await db.query(
-      'INSERT INTO users (name, email, password_hash, otp_code, otp_expires_at) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name, email, password_hash, otpHash, expiresAt]
+      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
+      [name, email, password_hash]
     );
     const user = result.rows[0];
 
-    // Print to server console for local testing preview
-    console.log(`\n==============================================\n[SECURITY] REGISTER OTP FOR ${email} IS: ${otp}\n==============================================\n`);
+    const token = generateToken(user);
+    delete user.password_hash;
+    delete user.otp_code;
+    delete user.otp_expires_at;
 
-    // Send email verification alert (skip database in-app log for security)
-    await sendNotification(
-      user.id,
-      'Verify Your Workspace Account',
-      `Your verification code is: ${otp}. This code will expire in 5 minutes.`,
-      true
-    );
-
-    res.status(201).json({ requiresOtp: true, email: user.email, test_otp_code: otp });
+    res.status(201).json({ user, token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

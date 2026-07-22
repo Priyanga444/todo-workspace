@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 import { RiMailLine, RiLockPasswordLine, RiUserLine, RiUserAddLine, RiGroupLine, RiShieldKeyholeLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri';
 
 const Register = () => {
-  const { register: registerUser, verifyOtp, setWorkspaceMode } = useApp();
+  const { register: registerUser, setWorkspaceMode } = useApp();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -22,28 +22,15 @@ const Register = () => {
     }
   }, []);
 
-  // Registration flow stages: basic form -> OTP verify -> mode selector
-  const [showOtpScreen, setShowOtpScreen] = useState(false);
-  const [otpEmail, setOtpEmail] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [otpError, setOtpError] = useState('');
+  // Registration flow stages: basic form -> mode selector
   const [showModeSelection, setShowModeSelection] = useState(false);
-  const [testOtp, setTestOtp] = useState('');
 
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await registerUser(data.name, data.email, data.password);
-      if (res && res.requiresOtp) {
-        setOtpEmail(res.email);
-        setShowOtpScreen(true);
-        if (res.test_otp_code) {
-          setTestOtp(res.test_otp_code);
-        }
-      } else {
-        setShowModeSelection(true);
-      }
+      await registerUser(data.name, data.email, data.password);
+      setShowModeSelection(true);
     } catch (err) {
       console.error(err);
       setErrorMsg(err.message || 'Registration failed');
@@ -52,21 +39,6 @@ const Register = () => {
     }
   };
 
-  const handleVerifyOtpSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setOtpError('');
-    try {
-      await verifyOtp(otpEmail, otpCode);
-      setShowModeSelection(true);
-      setShowOtpScreen(false);
-    } catch (err) {
-      console.error(err);
-      setOtpError(err.message || 'Invalid or expired verification code.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSelectMode = (mode) => {
     setWorkspaceMode(mode);
@@ -164,159 +136,90 @@ const Register = () => {
             <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-violet-300/20 blur-[50px] pointer-events-none rounded-full" />
 
             {!showModeSelection ? (
-              !showOtpScreen ? (
-                // Stage 1: Basic Register Form
-                <div className="relative z-10">
-                  <div className="text-center mb-8">
-                    <div className="lg:hidden w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-pink-500/20 mx-auto mb-4">
-                      W
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
-                    <p className="text-pink-655 text-xs font-bold mt-1.5">Sign up to spawn your workspace console</p>
+              // Stage 1: Basic Register Form
+              <div className="relative z-10">
+                <div className="text-center mb-8">
+                  <div className="lg:hidden w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-pink-500/20 mx-auto mb-4">
+                    W
                   </div>
-
-                  {errorMsg && (
-                    <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-700 rounded-2xl text-xs font-bold mb-5 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                      {errorMsg}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Full Name</label>
-                      <div className="relative">
-                        <RiUserLine className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 text-sm z-10" />
-                        <input 
-                          type="text" 
-                          {...register('name', { required: 'Name is required' })}
-                          style={{ paddingLeft: '34px' }}
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
-                          placeholder="name" 
-                        />
-                      </div>
-                      {errors.name && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.name.message}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Email Address</label>
-                      <div className="relative">
-                        <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 text-sm z-10" />
-                        <input 
-                          type="email" 
-                          {...register('email', { required: 'Email is required' })}
-                          style={{ paddingLeft: '34px' }}
-                          className="w-full pl-9 pr-4 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
-                          placeholder="you@workspace.com" 
-                        />
-                      </div>
-                      {errors.email && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.email.message}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Password</label>
-                      <div className="relative">
-                        <RiLockPasswordLine className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 text-sm z-10" />
-                        <input 
-                          type={showPassword ? "text" : "password"}
-                          {...register('password', { required: 'Password is required' })}
-                          style={{ paddingLeft: '34px', paddingRight: '40px' }}
-                          className="w-full pl-9 pr-10 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
-                          placeholder="••••••••" 
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors z-20 cursor-pointer"
-                        >
-                          {showPassword ? <RiEyeOffLine className="text-sm" /> : <RiEyeLine className="text-sm" />}
-                        </button>
-                      </div>
-                      {errors.password && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.password.message}</p>}
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      disabled={loading}
-                      className="w-full btn-primary mt-6 py-3.5 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-pink-500/20 transition-all cursor-pointer active:scale-95"
-                    >
-                      <RiUserAddLine className="text-sm" />
-                      {loading ? 'Registering...' : 'Register'}
-                    </button>
-                  </form>
-
-                  <p className="text-center text-slate-600 text-xs mt-6 font-medium">
-                    Already registered? <Link to="/" className="text-pink-655 hover:text-pink-700 font-bold transition-colors">Sign in here</Link>
-                  </p>
+                  <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
+                  <p className="text-pink-655 text-xs font-bold mt-1.5">Sign up to spawn your workspace console</p>
                 </div>
-              ) : (
-                // Stage 2: OTP Verification Form (Vibrant & Centered)
-                <div className="relative z-10">
-                  <div className="text-center mb-8">
-                    <RiShieldKeyholeLine className="text-4xl text-pink-500 mx-auto mb-4 animate-bounce" />
-                    <h2 className="text-2xl font-bold text-slate-900">Verify Email</h2>
-                    <p className="text-slate-700 text-xs font-bold mt-2.5">
-                      We sent a 6-digit OTP code to <br />
-                      <strong className="text-slate-900">{otpEmail}</strong>
-                    </p>
+
+                {errorMsg && (
+                  <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-700 rounded-2xl text-xs font-bold mb-5 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                    {errorMsg}
                   </div>
+                )}
 
-                  {otpError && (
-                    <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-700 rounded-2xl text-xs font-bold mb-5 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                      {otpError}
-                    </div>
-                  )}
-
-                  {testOtp && (
-                    <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 rounded-2xl text-xs font-bold text-center mb-5">
-                      💡 Helper Verification OTP: <strong className="text-emerald-900 underline tracking-wider">{testOtp}</strong>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleVerifyOtpSubmit} className="space-y-5">
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-755 mb-2 uppercase tracking-wider text-center">
-                        Enter 6-Digit OTP Code
-                      </label>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Full Name</label>
+                    <div className="relative">
+                      <RiUserLine className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 text-sm z-10" />
                       <input 
                         type="text" 
-                        maxLength="6"
-                        required
-                        value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                        className="w-full text-center text-lg font-bold tracking-[8px] bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 transition-all py-3.5 rounded-2xl" 
-                        placeholder="000000" 
-                        autoFocus
+                        {...register('name', { required: 'Name is required' })}
+                        style={{ paddingLeft: '34px' }}
+                        className="w-full pl-9 pr-4 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
+                        placeholder="name" 
                       />
                     </div>
+                    {errors.name && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.name.message}</p>}
+                  </div>
 
-                    <button 
-                      type="submit" 
-                      disabled={loading || otpCode.length !== 6}
-                      className="w-full btn-primary py-3 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-pink-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95"
-                    >
-                      {loading ? 'Verifying Code...' : 'Verify & Log In'}
-                    </button>
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Email Address</label>
+                    <div className="relative">
+                      <RiMailLine className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 text-sm z-10" />
+                      <input 
+                        type="email" 
+                        {...register('email', { required: 'Email is required' })}
+                        style={{ paddingLeft: '34px' }}
+                        className="w-full pl-9 pr-4 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
+                        placeholder="you@workspace.com" 
+                      />
+                    </div>
+                    {errors.email && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.email.message}</p>}
+                  </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowOtpScreen(false);
-                        setOtpCode('');
-                        setOtpError('');
-                      }}
-                      className="w-full py-2.5 rounded-2xl bg-white/40 hover:bg-white/60 border border-slate-200/50 text-xs font-bold transition-all text-slate-700 cursor-pointer"
-                    >
-                      Back to Registration
-                    </button>
-                  </form>
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Password</label>
+                    <div className="relative">
+                      <RiLockPasswordLine className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-500 text-sm z-10" />
+                      <input 
+                        type={showPassword ? "text" : "password"}
+                        {...register('password', { required: 'Password is required' })}
+                        style={{ paddingLeft: '34px', paddingRight: '40px' }}
+                        className="w-full pl-9 pr-10 py-2.5 text-xs bg-white/60 border border-slate-200 focus:outline-none focus:border-pink-500 text-slate-900 placeholder-slate-400 rounded-2xl transition-all" 
+                        placeholder="••••••••" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors z-20 cursor-pointer"
+                      >
+                        {showPassword ? <RiEyeOffLine className="text-sm" /> : <RiEyeLine className="text-sm" />}
+                      </button>
+                    </div>
+                    {errors.password && <p className="text-xs text-rose-600 mt-1 font-semibold">{errors.password.message}</p>}
+                  </div>
 
-                  <p className="text-center text-slate-500 text-[10px] mt-6 italic">
-                    *Check your backend server console logs to read your local OTP preview link if using Ethereal Mail testing server.
-                  </p>
-                </div>
-              )
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full btn-primary mt-6 py-3.5 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-pink-500/20 transition-all cursor-pointer active:scale-95"
+                  >
+                    <RiUserAddLine className="text-sm" />
+                    {loading ? 'Registering...' : 'Register'}
+                  </button>
+                </form>
+
+                <p className="text-center text-slate-600 text-xs mt-6 font-medium">
+                  Already registered? <Link to="/" className="text-pink-655 hover:text-pink-700 font-bold transition-colors">Sign in here</Link>
+                </p>
+              </div>
             ) : (
               // Stage 3: Workspace Onboarding Selector
               <div className="relative z-10">

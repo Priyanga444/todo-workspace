@@ -109,7 +109,21 @@ export const AppProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     const data = await api.register({ name, email, password });
-    return data; // returns requiresOtp: true, email
+    setUser(data.user);
+    setAuthToken(data.token);
+    
+    // Fetch user projects
+    const userProjects = await api.getProjects();
+    setProjects(userProjects);
+    if (userProjects.length > 0) {
+      try {
+        const fullProj = await api.getProject(userProjects[0].id);
+        setCurrentProject(fullProj);
+      } catch {
+        setCurrentProject(userProjects[0]);
+      }
+    }
+    return data;
   };
 
   const forgotPassword = async (email) => {
